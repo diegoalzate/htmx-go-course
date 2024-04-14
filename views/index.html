@@ -1,8 +1,13 @@
+{{ block "index" .}}
+<!DOCTYPE html>
 <html>
   <head>
-    <title>Our First HTML Site!</title>
+    <title></title>
+    <script src="https://unpkg.com/htmx.org/dist/htmx.min.js"></script>
   </head>
   <body>
     Count {{ .Count }}
+    <button hx-post="/count">Count</button>
   </body>
 </html>
+{{ end }}
