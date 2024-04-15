@@ -36,15 +36,16 @@ func main() {
 	t := newTemplate()
 
 	serverMux.Handle("GET /", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if err := t.Render(w, "index.html", count); err != nil {
+		if err := t.Render(w, "index", count); err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
 	}))
 
 	serverMux.Handle("POST /count", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		fmt.Println("hit")
 		count.Count += 1
-		if err := t.Render(w, "index.html", count); err != nil {
+		if err := t.Render(w, "count", count); err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
