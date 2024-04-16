@@ -6,11 +6,35 @@
     <script src="https://unpkg.com/htmx.org@1.9.11"></script>
   </head>
   <body>
-    <div id="count">{{ template "count" . }}</div>
-    <button hx-post="/count" hx-target="#count">Click Me</button>
+    <h1>Contacts</h1>
+    {{ template "create-contact-form" . }} {{ template "contacts" . }}
   </body>
 </html>
 {{ end }}
 
-<!-- count block -->
-{{ block "count" . }} Count {{ .Count }} {{ end }}
+<!-- create contact form -->
+{{ block "create-contact-form" . }}
+<form hx-post="/contacts" hx-target="#contacts" hx-swap="outerHTML">
+  <div>
+    <label for="name">name</label>
+    <input type="text" id="name" name="name" required />
+  </div>
+  <div>
+    <label for="email">email</label>
+    <input type="text" id="email" name="email" required />
+  </div>
+  <button type="submit">Submit</button>
+</form>
+{{ end }}
+
+<!-- contacts loop -->
+{{ block "contacts" . }}
+<div id="contacts">
+  {{ range .Contacts }}
+  <div>
+    <h3>{{ .Name }}</h3>
+    <p>{{ .Email }}</p>
+  </div>
+  {{ end }}
+</div>
+{{ end }}
