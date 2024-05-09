@@ -8,6 +8,17 @@
   <body>
     <h1>Contacts</h1>
     {{ template "create-contact-form" . }} {{ template "contacts" . }}
+
+    <script>
+      document.addEventListener("DOMContentLoaded", (event) => {
+        document.body.addEventListener("htmx:beforeSwap", (evt) => {
+          if (evt.detail.xhr.status === 422) {
+            evt.detail.shouldSwap = true;
+            evt.detail.isError = true;
+          }
+        });
+      });
+    </script>
   </body>
 </html>
 {{ end }}
