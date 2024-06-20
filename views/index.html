@@ -25,14 +25,46 @@
 
 <!-- create contact form -->
 {{ block "create-contact-form" . }}
-<form hx-post="/contacts" hx-target="#contacts" hx-swap="outerHTML">
+<form hx-post="/contacts" hx-swap="outerHTML">
   <div>
     <label for="name">name</label>
-    <input type="text" id="name" name="name" required />
+    <input
+      type="text"
+      id="name"
+      name="name"
+      required
+      {{
+      if
+      .App.FormData.Values.name
+      }}
+      value="{{ .App.FormData.Values.name }}"
+      {{
+      end
+      }}
+    />
+    {{ if .App.FormData.Errors.name }}
+    <p style="color: red">{{ .App.FormData.Errors.name }}</p>
+    {{ end }}
   </div>
   <div>
     <label for="email">email</label>
-    <input type="text" id="email" name="email" required />
+    <input
+      type="text"
+      id="email"
+      name="email"
+      required
+      {{
+      if
+      .App.FormData.Values.email
+      }}
+      value="{{ .App.FormData.Values.email }}"
+      {{
+      end
+      }}
+    />
+    {{ if .App.FormData.Errors.email }}
+    <p style="color: red">{{ .App.FormData.Errors.email }}</p>
+    {{ end }}
   </div>
   <button type="submit">Submit</button>
 </form>
@@ -41,7 +73,7 @@
 <!-- contacts loop -->
 {{ block "contacts" . }}
 <div id="contacts">
-  {{ range .Contacts }}
+  {{ range .DB.Contacts }}
   <div>
     <h3>{{ .Name }}</h3>
     <p>{{ .Email }}</p>

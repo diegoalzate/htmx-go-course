@@ -34,12 +34,12 @@ func newContact(email, name string) Contact {
 	}
 }
 
-type AppState struct {
+type DBState struct {
 	Contacts []Contact
 }
 
-func newAppState() AppState {
-	return AppState{
+func newDBState() DBState {
+	return DBState{
 		Contacts: []Contact{
 			newContact("diego@gmail.com", "diego"),
 			newContact("bob@gmail.com", "bob"),
@@ -47,10 +47,55 @@ func newAppState() AppState {
 	}
 }
 
+func (db *DBState) hasEmail(val string) bool {
+	found := false
+	for _, c := range db.Contacts {
+		if c.Email == val {
+			found = true
+		}
+	}
+
+	return found
+}
+
+type FormData struct {
+	Values map[string]string
+	Errors map[string]string
+}
+
+func newFormData() FormData {
+	return FormData{
+		Values: make(map[string]string),
+		Errors: make(map[string]string),
+	}
+}
+
+type AppState struct {
+	FormData FormData
+}
+
+func newAppState() AppState {
+	return AppState{
+		FormData: newFormData(),
+	}
+}
+
+type State struct {
+	App AppState
+	DB  DBState
+}
+
+func newState() State {
+	return State{
+		App: newAppState(),
+		DB:  newDBState(),
+	}
+}
+
 func main() {
 	serverMux := http.NewServeMux()
 
-	state := newAppState()
+	state := newState()
 
 	t := newTemplate()
 
@@ -65,9 +110,22 @@ func main() {
 		email := r.FormValue("email")
 		name := r.FormValue("name")
 
+		if state.DB.hasEmail(email) {
+			// validation error
+			log.Print("db has email")
+			state.App.FormData.Values["name"] = name
+			state.App.FormData.Values["email"] = email
+			state.App.FormData.Errors["email"] = "Email already exists"
+			if err := t.Render(w, "create-contact-form", state); err != nil {
+				http.Error(w, err.Error(), http.StatusUnprocessableEntity)
+				return
+			}
+			return
+		}
+
 		contact := newContact(email, name)
 
-		state.Contacts = append(state.Contacts, contact)
+		state.DB.Contacts = append(state.DB.Contacts, contact)
 
 		if err := t.Render(w, "contacts", state); err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
