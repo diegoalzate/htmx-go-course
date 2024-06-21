@@ -79,8 +79,16 @@
 
 <!-- contact block -->
 {{ block "contact" . }}
-<div>
+<div id="contact-{{ .Id }}" style="flex-flow: row">
   <h3>{{ .Name }}</h3>
   <p>{{ .Email }}</p>
+  <button
+    hx-delete="/contacts/{{ .Id }}"
+    hx-confirm="Are you sure?"
+    hx-target="#contact-{{ .Id }}"
+    hx-swap="outerHTML"
+  >
+    [x]
+  </button>
 </div>
 {{ end}}

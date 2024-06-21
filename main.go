@@ -6,6 +6,7 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"strconv"
 )
 
 type Template struct {
@@ -22,13 +23,18 @@ func (t *Template) Render(w io.Writer, name string, data interface{}) error {
 	return t.tmpl.ExecuteTemplate(w, name, data)
 }
 
+var id = 0
+
 type Contact struct {
+	Id    int
 	Email string
 	Name  string
 }
 
 func newContact(email, name string) Contact {
+	id++
 	return Contact{
+		Id:    id,
 		Email: email,
 		Name:  name,
 	}
@@ -56,6 +62,16 @@ func (db *DBState) hasEmail(val string) bool {
 	}
 
 	return found
+}
+
+func (db *DBState) indexOf(id int) (index int, found bool) {
+	for idx, c := range db.Contacts {
+		if c.Id == id {
+			return idx, true
+		}
+	}
+
+	return -1, false
 }
 
 type FormData struct {
@@ -143,6 +159,26 @@ func main() {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
+	})
+
+	serverMux.HandleFunc("DELETE /contacts/{id}", func(w http.ResponseWriter, r *http.Request) {
+		idPath := r.PathValue("id")
+		id, err := strconv.Atoi(idPath)
+
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		contactIdx, foundContact := state.DB.indexOf(id)
+
+		if !foundContact {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		state.DB.Contacts = append(state.DB.Contacts[:contactIdx], state.DB.Contacts[contactIdx+1:]...)
+
 	})
 
 	server := http.Server{
