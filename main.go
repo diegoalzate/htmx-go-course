@@ -181,6 +181,8 @@ func main() {
 
 	})
 
+	http.Handle("GET /static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
+
 	server := http.Server{
 		Handler: serverMux,
 		Addr:    ":8080",
