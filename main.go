@@ -116,7 +116,7 @@ func main() {
 			state.App.FormData.Values["name"] = name
 			state.App.FormData.Values["email"] = email
 			state.App.FormData.Errors["email"] = "Email already exists"
-			if err := t.Render(w, "create-contact-form", state); err != nil {
+			if err := t.Render(w, "create-contact-form", state.App.FormData); err != nil {
 				http.Error(w, err.Error(), http.StatusUnprocessableEntity)
 				return
 			}
@@ -127,7 +127,14 @@ func main() {
 
 		state.DB.Contacts = append(state.DB.Contacts, contact)
 
-		if err := t.Render(w, "contacts", state); err != nil {
+		err := t.Render(w, "create-contact-form", newFormData())
+
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		if err := t.Render(w, "contacts", state.DB); err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}

@@ -7,8 +7,8 @@
   </head>
   <body>
     <h1>Contacts</h1>
-    {{ template "create-contact-form" . }} {{ template "contacts" . }}
-
+    {{ template "create-contact-form" .App.FormData }} {{ template "contacts"
+    .DB }}
     <script>
       document.addEventListener("DOMContentLoaded", (event) => {
         document.body.addEventListener("htmx:beforeSwap", (evt) => {
@@ -35,15 +35,15 @@
       required
       {{
       if
-      .App.FormData.Values.name
+      .Values.name
       }}
-      value="{{ .App.FormData.Values.name }}"
+      value="{{ .Values.name }}"
       {{
       end
       }}
     />
-    {{ if .App.FormData.Errors.name }}
-    <p style="color: red">{{ .App.FormData.Errors.name }}</p>
+    {{ if .Errors.name }}
+    <p style="color: red">{{ .Errors.name }}</p>
     {{ end }}
   </div>
   <div>
@@ -55,15 +55,15 @@
       required
       {{
       if
-      .App.FormData.Values.email
+      .Values.email
       }}
-      value="{{ .App.FormData.Values.email }}"
+      value="{{ .Values.email }}"
       {{
       end
       }}
     />
-    {{ if .App.FormData.Errors.email }}
-    <p style="color: red">{{ .App.FormData.Errors.email }}</p>
+    {{ if .Errors.email }}
+    <p style="color: red">{{ .Errors.email }}</p>
     {{ end }}
   </div>
   <button type="submit">Submit</button>
@@ -72,12 +72,15 @@
 
 <!-- contacts loop -->
 {{ block "contacts" . }}
-<div id="contacts">
-  {{ range .DB.Contacts }}
-  <div>
-    <h3>{{ .Name }}</h3>
-    <p>{{ .Email }}</p>
-  </div>
-  {{ end }}
+<div id="contacts" hx-swap-oob="true">
+  {{ range .Contacts }} {{ template "contact" . }} {{ end }}
 </div>
 {{ end }}
+
+<!-- contact block -->
+{{ block "contact" . }}
+<div>
+  <h3>{{ .Name }}</h3>
+  <p>{{ .Email }}</p>
+</div>
+{{ end}}
