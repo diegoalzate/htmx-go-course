@@ -72,7 +72,7 @@
 
 <!-- contacts loop -->
 {{ block "contacts" . }}
-<div id="contacts" hx-swap-oob="true">
+<div id="contacts" hx-get="/contacts" hx-trigger="newContact from:body">
   {{ range .Contacts }} {{ template "contact" . }} {{ end }}
 </div>
 {{ end }}

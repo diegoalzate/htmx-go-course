@@ -106,7 +106,7 @@ func main() {
 		}
 	}))
 
-	serverMux.Handle("POST /contacts", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	serverMux.HandleFunc("POST /contacts", func(w http.ResponseWriter, r *http.Request) {
 		email := r.FormValue("email")
 		name := r.FormValue("name")
 
@@ -123,6 +123,9 @@ func main() {
 			return
 		}
 
+		// add event
+		w.Header().Add("HX-Trigger", "newContact")
+
 		contact := newContact(email, name)
 
 		state.DB.Contacts = append(state.DB.Contacts, contact)
@@ -133,12 +136,14 @@ func main() {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
+	})
 
+	serverMux.HandleFunc("GET /contacts", func(w http.ResponseWriter, r *http.Request) {
 		if err := t.Render(w, "contacts", state.DB); err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
-	}))
+	})
 
 	server := http.Server{
 		Handler: serverMux,
